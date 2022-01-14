@@ -1545,6 +1545,15 @@ ifneq ($(filter modules_install,$(MAKECMDGOALS)),)
 modinst_pre := __modinst_pre
 endif
 
+ifdef MODULES_NO_SYMLINK
+modules_install: $(modinst_pre)
+PHONY += __modinst_pre
+__modinst_pre:
+	@mkdir -p $(MODLIB)
+	@sed 's:^:kernel/:' modules.order > $(MODLIB)/modules.order
+	@cp -f modules.builtin $(MODLIB)/
+	@cp -f $(objtree)/modules.builtin.modinfo $(MODLIB)/
+else
 modules_install: $(modinst_pre)
 PHONY += __modinst_pre
 __modinst_pre:
@@ -1559,6 +1568,7 @@ __modinst_pre:
 	@sed 's:^:kernel/:' modules.order > $(MODLIB)/modules.order
 	@cp -f modules.builtin $(MODLIB)/
 	@cp -f $(objtree)/modules.builtin.modinfo $(MODLIB)/
+endif
 
 endif # CONFIG_MODULES
 
